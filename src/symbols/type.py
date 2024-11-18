@@ -9,6 +9,7 @@ class TypeKind(Enum):
   STRING = 3
   JSON = 4
   FUNCTION = 5
+  EVENT = 6
 
 @dataclass
 class Function:

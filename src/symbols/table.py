@@ -1,7 +1,7 @@
 from typing import List,Dict
 from .symbol import Symbol
 from .error import *
-from src.utils import *
+from utils import *
 from .record import Record
 from .type import Type, TypeKind
 import warnings

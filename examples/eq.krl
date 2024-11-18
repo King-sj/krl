@@ -24,7 +24,7 @@ event "斐波那契数列" {
 	int n = get("项数");
 	int res = fbc(n);
 }
-login(){
+fn login(){
  string acc = get("请输入账号");
  string psw = get("请输入密码");
  json data = {
@@ -38,7 +38,7 @@ login(){
 event "other" {
 	# 自动输出 "无对应功能" + {相近的功能}
 }
-fbc(int n) {
+fn fbc(int n) {
 	if (n== 0 || n==1) {
 		return 1;
 	}

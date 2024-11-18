@@ -48,21 +48,11 @@ def p_program_part_list(p):
 
 
 def p_program_part(p):
-  '''program_part : event_list
-                  | function_list'''
+  '''program_part : event
+                  | function
+                  '''
   p[0] = Node(NodeType.NOT_TOKEN, "program_part", None, [p[1]])
   p[0].set_pos((p.lineno(1), p.lexspan(1)))
-
-
-def p_event_list(p):
-  '''event_list : event
-                | event_list event'''
-  if len(p) == 2:
-    p[0] = Node(NodeType.NOT_TOKEN, "event_list", None, [p[1]])
-  else:
-    p[0] = Node(NodeType.NOT_TOKEN, "event_list", None, [p[1], p[2]])
-  p[0].set_pos((p.lineno(1), p.lexspan(1)))
-
 
 def p_event(p):
   '''event : EVENT STRING LBRACE statement_list RBRACE'''
@@ -191,15 +181,16 @@ def p_json_pair(p):
   p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
-def p_function_list(p):
-  '''function_list : ID LPAREN RPAREN comp_statement
-                   | ID LPAREN var_list RPAREN comp_statement
+def p_function(p):
+  '''function : FN ID LPAREN RPAREN comp_statement
+              | FN ID LPAREN var_list RPAREN comp_statement
   '''
-  if len(p) == 5:
-    p[0] = Node(NodeType.NOT_TOKEN, "function_list", None, [p[1], p[4]])
+
+  if len(p) == 6:
+    p[0] = Node(NodeType.NOT_TOKEN, "function", None, [p[2], p[5]])
   else:
-    p[0] = Node(NodeType.NOT_TOKEN, "function_list", None, [p[1], p[3], p[5]])
-  p[0].set_pos((p.lineno(1), p.lexspan(1)))
+    p[0] = Node(NodeType.NOT_TOKEN, "function", None, [p[2], p[4], p[6]])
+  p[0].set_pos((p.lineno(2), p.lexspan(2)))
 
 
 def p_var_list(p):

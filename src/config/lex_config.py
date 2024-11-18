@@ -4,6 +4,7 @@ reserved = {
     'else': 'ELSE',
     'while': 'WHILE',
     'return': 'RETURN',
+    'fn' : 'FN'
 }
 tokens = [
     'TYPE',
