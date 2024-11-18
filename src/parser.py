@@ -22,15 +22,20 @@ precedence = (
 
 root = None
 
+
 def p_program(p):
   'program : program_part_list'
   p[0] = Node(NodeType.NOT_TOKEN, "program", None, [p[1]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
   global root
   root = p[0]
+
 
 def p_empty(p):
   'empty :'
   p[0] = Node(NodeType.NOT_TOKEN, "empty", None, [])
+  p[0].set_pos((p.lineno(0), p.lexspan(0)))
+
 
 def p_program_part_list(p):
   '''program_part_list : program_part
@@ -39,12 +44,14 @@ def p_program_part_list(p):
     p[0] = Node(NodeType.NOT_TOKEN, "program_part_list", None, [p[1]])
   else:
     p[0] = Node(NodeType.NOT_TOKEN, "program_part_list", None, [p[1], p[2]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_program_part(p):
   '''program_part : event_list
                   | function_list'''
   p[0] = Node(NodeType.NOT_TOKEN, "program_part", None, [p[1]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_event_list(p):
@@ -54,11 +61,13 @@ def p_event_list(p):
     p[0] = Node(NodeType.NOT_TOKEN, "event_list", None, [p[1]])
   else:
     p[0] = Node(NodeType.NOT_TOKEN, "event_list", None, [p[1], p[2]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_event(p):
   '''event : EVENT STRING LBRACE statement_list RBRACE'''
   p[0] = Node(NodeType.NOT_TOKEN, "event", None, [p[2], p[4]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_statement_list(p):
@@ -68,6 +77,7 @@ def p_statement_list(p):
     p[0] = Node(NodeType.NOT_TOKEN, "statement_list", None, [p[1]])
   else:
     p[0] = Node(NodeType.NOT_TOKEN, "statement_list", None, [p[1], p[2]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_statement(p):
@@ -79,6 +89,8 @@ def p_statement(p):
                | empty
   '''
   p[0] = Node(NodeType.NOT_TOKEN, "statement", None, [p[1]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
+
 
 def p_if_statement(p):
   '''if_statement : IF LPAREN expression RPAREN statement
@@ -88,21 +100,25 @@ def p_if_statement(p):
     p[0] = Node(NodeType.NOT_TOKEN, "if_statement", None, [p[3], p[5]])
   else:
     p[0] = Node(NodeType.NOT_TOKEN, "if_statement", None, [p[3], p[5], p[7]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_while_statement(p):
   '''while_statement : WHILE LPAREN expression RPAREN statement'''
   p[0] = Node(NodeType.NOT_TOKEN, "while_statement", None, [p[3], p[5]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_return_statement(p):
   '''return_statement : RETURN expression SEMI'''
   p[0] = Node(NodeType.NOT_TOKEN, "return_statement", None, [p[2]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_comp_statement(p):
   '''comp_statement : LBRACE statement_list RBRACE'''
   p[0] = Node(NodeType.NOT_TOKEN, "comp_statement", None, [p[2]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_expression(p):
@@ -130,12 +146,17 @@ def p_expression(p):
   '''
   if len(p) == 2:
     p[0] = Node(NodeType.NOT_TOKEN, "expression", None, [p[1]])
+    p[0].set_pos((p.lineno(1), p.lexspan(1)))
   elif len(p) == 3:
     p[0] = Node(NodeType.NOT_TOKEN, "expression", None, [p[1], p[2]])
+    p[0].set_pos((p.lineno(1), p.lexspan(1)))
   elif len(p) == 4:
-    p[0] = Node(NodeType.NOT_TOKEN, "expression", None, [p[1],p[2],p[3]])
+    p[0] = Node(NodeType.NOT_TOKEN, "expression", None, [p[1], p[2], p[3]])
+    p[0].set_pos((p.lineno(2), p.lexspan(2)))
   else:
-    p[0] = Node(NodeType.NOT_TOKEN, "expression", None, [p[1],p[2],p[3],p[4]])
+    p[0] = Node(NodeType.NOT_TOKEN, "expression", None,
+                [p[1], p[2], p[3], p[4]])
+    p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_args(p):
@@ -145,11 +166,13 @@ def p_args(p):
     p[0] = Node(NodeType.NOT_TOKEN, "args", None, [p[1]])
   else:
     p[0] = Node(NodeType.NOT_TOKEN, "args", None, [p[1], p[3]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_json(p):
   '''json : LBRACE json_list RBRACE'''
   p[0] = Node(NodeType.NOT_TOKEN, "json", None, [p[2]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_json_list(p):
@@ -159,11 +182,13 @@ def p_json_list(p):
     p[0] = Node(NodeType.NOT_TOKEN, "json_list", None, [p[1]])
   else:
     p[0] = Node(NodeType.NOT_TOKEN, "json_list", None, [p[1], p[3]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_json_pair(p):
   '''json_pair : STRING COLON expression'''
   p[0] = Node(NodeType.NOT_TOKEN, "json_pair", None, [p[1], p[3]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_function_list(p):
@@ -174,6 +199,7 @@ def p_function_list(p):
     p[0] = Node(NodeType.NOT_TOKEN, "function_list", None, [p[1], p[4]])
   else:
     p[0] = Node(NodeType.NOT_TOKEN, "function_list", None, [p[1], p[3], p[5]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 def p_var_list(p):
@@ -184,6 +210,7 @@ def p_var_list(p):
     p[0] = Node(NodeType.NOT_TOKEN, "var_list", None, [p[1], p[2]])
   else:
     p[0] = Node(NodeType.NOT_TOKEN, "var_list", None, [p[1], p[3], p[4]])
+  p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
 # Error rule for syntax errors
