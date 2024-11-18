@@ -5,6 +5,7 @@ from lex import tokens
 from node import Node, NodeType
 
 precedence = (
+    ('nonassoc', 'TOKEN'),  # Nonassociative operators
     # ('nonassoc', 'LESSTHAN', 'GREATERTHAN'),  # Nonassociative operators
     ('right', 'ASSIGN'),
     ('left', 'OR'),
@@ -13,13 +14,13 @@ precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE'),
     ('right', 'NOT'),
+    ('right', 'UMINUS'),
     ('left', 'DOT'),
     ('left', 'LPAREN', 'RPAREN'),
     ('nonassoc', 'ELSE'),
 )
 
 root = None
-
 
 def p_program(p):
   'program : program_part_list'
@@ -77,10 +78,7 @@ def p_statement(p):
                | expression SEMI
                | empty
   '''
-  if len(p) == 2:
-    p[0] = Node(NodeType.NOT_TOKEN, "statement", None, [p[1]])
-  else:
-    p[0] = Node(NodeType.NOT_TOKEN, "statement", None, [p[1], p[2]])
+  p[0] = Node(NodeType.NOT_TOKEN, "statement", None, [p[1]])
 
 def p_if_statement(p):
   '''if_statement : IF LPAREN expression RPAREN statement
@@ -120,11 +118,11 @@ def p_expression(p):
                 | expression ASSIGN expression
                 | LPAREN expression RPAREN
                 | NOT expression
-                | MINUS expression
+                | MINUS expression %prec UMINUS
                 | ID LPAREN RPAREN
                 | ID LPAREN args RPAREN
                 | expression DOT ID
-                | ID
+                | ID %prec TOKEN
                 | INT
                 | FLOAT
                 | STRING
@@ -135,9 +133,9 @@ def p_expression(p):
   elif len(p) == 3:
     p[0] = Node(NodeType.NOT_TOKEN, "expression", None, [p[1], p[2]])
   elif len(p) == 4:
-    p[0] = Node(NodeType.NOT_TOKEN, "expression", None, [p[2]])
+    p[0] = Node(NodeType.NOT_TOKEN, "expression", None, [p[1],p[2],p[3]])
   else:
-    p[0] = Node(NodeType.NOT_TOKEN, "expression", None, [p[1], p[3], p[2]])
+    p[0] = Node(NodeType.NOT_TOKEN, "expression", None, [p[1],p[2],p[3],p[4]])
 
 
 def p_args(p):

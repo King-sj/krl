@@ -30,9 +30,9 @@ class Node:
           (f':{self.value}' if self.value else ''))
     for child in self.children:
       if child is None:
-        print(' ' * indent + 'None')
+        print(' ' * (indent+2) + 'None')
         continue
       if isinstance(child, Node):
         child.print_ast(indent + 2)
       else:
-        print(' ' * indent + f'type:{type(child)} {child}')
+        print(' ' * (indent+2) + f'type:{type(child)} {child}')
