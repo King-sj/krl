@@ -66,7 +66,7 @@ def p_statement_list(p):
   if len(p) == 2:
     p[0] = Node(NodeType.NOT_TOKEN, "statement_list", None, [p[1]])
   else:
-    p[0] = Node(NodeType.NOT_TOKEN, "statement_list", None, [p[1], p[2]])
+    p[0] = Node(NodeType.NOT_TOKEN, "statement_list", None, [p[2], p[1]])
   p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
@@ -155,7 +155,7 @@ def p_args(p):
   if len(p) == 2:
     p[0] = Node(NodeType.NOT_TOKEN, "args", None, [p[1]])
   else:
-    p[0] = Node(NodeType.NOT_TOKEN, "args", None, [p[1], p[3]])
+    p[0] = Node(NodeType.NOT_TOKEN, "args", None, [p[3], p[1]])
   p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 
@@ -187,7 +187,7 @@ def p_function(p):
   '''
 
   if len(p) == 6:
-    p[0] = Node(NodeType.NOT_TOKEN, "function", None, [p[2], p[5]])
+    p[0] = Node(NodeType.NOT_TOKEN, "function", None, [p[2], Node.create_none() ,p[5]])
   else:
     p[0] = Node(NodeType.NOT_TOKEN, "function", None, [p[2], p[4], p[6]])
   p[0].set_pos((p.lineno(2), p.lexspan(2)))
@@ -200,7 +200,7 @@ def p_var_list(p):
   if len(p) == 3:
     p[0] = Node(NodeType.NOT_TOKEN, "var_list", None, [p[1], p[2]])
   else:
-    p[0] = Node(NodeType.NOT_TOKEN, "var_list", None, [p[1], p[3], p[4]])
+    p[0] = Node(NodeType.NOT_TOKEN, "var_list", None, [p[3], p[4],p[1]])
   p[0].set_pos((p.lineno(1), p.lexspan(1)))
 
 

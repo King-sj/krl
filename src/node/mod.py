@@ -43,3 +43,7 @@ class Node:
         child.print_ast(indent + 2)
       else:
         print(' ' * (indent + 2) + f'{type(child)} {child}')
+  @staticmethod
+  def create_none():
+    obj = Node(NodeType.VOID, 'NULL')
+    return obj

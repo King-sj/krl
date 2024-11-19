@@ -14,9 +14,11 @@
     "hget",
     "hpost",
     "lexpos",
+    "lval",
     "nonassoc",
     "nondigit",
-    "RELOP"
+    "RELOP",
+    "rval"
   ],
   "python.testing.pytestArgs": [
     "tests"

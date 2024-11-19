@@ -35,6 +35,9 @@ fn login(){
  json res = hpost(url, data);
  print(res.some);
 }
+event "bye" {
+  exit();
+}
 event "other" {
 	# 自动输出 "无对应功能" + {相近的功能}
 }

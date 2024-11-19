@@ -17,7 +17,11 @@ def t_TYPE(t):
   t.value = Node(NodeType.TOKEN,'TYPE',t.value)
   t.value.set_pos((t.lexer.lineno, t.lexer.lexpos))
   return t
-
+def t_RELOP(t):
+  r'==|!=|<=|>=|<|>'
+  t.value = Node(NodeType.TOKEN,'RELOP',t.value)
+  t.value.set_pos((t.lexer.lineno, t.lexer.lexpos))
+  return t
 @lex.TOKEN(identifier)
 def t_ID(t):
   # r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -42,6 +46,7 @@ def t_FLOAT(t):
   return t
 def t_STRING(t):
   r'".*"'
+  t.value = t.value[1:-1]
   t.value = Node(NodeType.STRING,'STRING',t.value)
   t.value.set_pos((t.lexer.lineno, t.lexer.lexpos))
   return t

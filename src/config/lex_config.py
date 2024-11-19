@@ -59,7 +59,6 @@ identifier = r'(' + nondigit + r'(' + digit + r'|' + nondigit + r')*)'
 t_AND = r'&&'
 t_OR = r'\|\|'
 t_NOT = r'!'
-t_RELOP = r'==|!=|<=|>=|<|>'
 
 # A string containing ignored characters (spaces and tabs)
 t_ignore = ' \t'

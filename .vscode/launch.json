@@ -9,7 +9,10 @@
       "type": "debugpy",
       "request": "launch",
       "program": "${file}",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "args": [
+        "C:\\Users\\21756\\Desktop\\krl\\examples\\fibonacci.krl"
+      ]
     }
   ]
 }
