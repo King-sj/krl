@@ -26,6 +26,7 @@ class StackListSymbolTable:
       if -1 == self.pop():
         break
     self.blockIndex -= 1
+    self.blockIndexTable.pop()
 
 
   def find(self, name: str) -> int:

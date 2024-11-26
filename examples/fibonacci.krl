@@ -1,8 +1,4 @@
-# 内置函数:
-# print get hget hpost
-# 生命周期
-# 内置事件: start end
-
+# 计算斐波那契数列
 event "start" {
   print("你好！欢迎使用我们的斐波那契数列计算机器人。");
   int n = get("请输入你想计算的斐波那契数列的项数：");
@@ -17,7 +13,7 @@ event "end" {
   print("感谢你的使用，再见！");
 }
 event "other" {
-  print("无对应功能");
+  print("无其它功能, 我们还是来算算斐波那契数列吧!");
   ask_again();
 }
 
@@ -30,9 +26,10 @@ fn ask_again() {
     print("结果是:");
     print(result);
     ask_again();
-  } else {
-    print("感谢你的使用，再见！");
+  } else if(choice == "否") {
     exit();
+  } else {
+    print("小淘气！不要乱输入哟~");
   }
 }
 

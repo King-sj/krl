@@ -88,9 +88,7 @@ class Interpreter:
     elif name == 'return_statement':
       return self.s_expression(cur.children[0].children[0])
     elif name == 'comp_statement':
-      self.running_symbol_table.openScope()
       res = self.s_comp_statement(cur.children[0])
-      self.running_symbol_table.closeScope()
       return res
 
     elif name == 'expression':
@@ -129,7 +127,10 @@ class Interpreter:
     raise RuntimeError("Unreached code")
 
   def s_comp_statement(self, cur: Node) -> StmtVal:
-    return self.s_statement_list(cur.children[0])
+    self.running_symbol_table.openScope()
+    res = self.s_statement_list(cur.children[0])
+    self.running_symbol_table.closeScope()
+    return res
 
   def comp_exp(self, children: List[Node], grammar: str):
     exp_list = grammar.split(' ')
