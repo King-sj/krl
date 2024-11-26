@@ -6,8 +6,12 @@ from warnings import warn
 from dataclasses import dataclass
 from typing import Any
 from node import Node, NodeType
+import requests
 from urllib import request
 from typing import Dict
+import json
+
+
 class RunState(Enum):
   START = 0
   WAIT = 1
@@ -67,6 +71,7 @@ class Interpreter:
     self.is_end = True
     self.state = RunState.END
     exit(0)
+
   def other(self, query):
     # TODO:find most like query
     self.run_event('other')
@@ -138,9 +143,9 @@ class Interpreter:
       return False
     for i in range(len(children)):
       # TODO: 更改lex.py 从而可以确保类型是Node, 从而可以去除下面这行
-      if isinstance(children[i],str) and children[i] != exp_list[i]:
+      if isinstance(children[i], str) and children[i] != exp_list[i]:
         return False
-      if isinstance(children[i],Node) and children[i].name != exp_list[i]:
+      if isinstance(children[i], Node) and children[i].name != exp_list[i]:
         return False
     return True
 
@@ -149,7 +154,7 @@ class Interpreter:
       t = Type.str2type(str(cur.children[0].value))
       id = str(cur.children[1].value)
       val = self.s_expression(cur.children[3])
-      if val.type.kind == TypeKind.UNKNOWN:
+      if val.type.kind == TypeKind.UNKNOWN or val.type.kind == TypeKind.ANY:
         # transfer type
         val.type = t
         val.value = Type.trans_to(val.value, t)
@@ -186,9 +191,9 @@ class Interpreter:
         rval = float(right.value)
       op = ''
       # TODO: 更改lex.py 从而可以确保类型是Node, 从而可以去除下面这行
-      if isinstance(cur.children[1],Node):
+      if isinstance(cur.children[1], Node):
         op = str(cur.children[1].value)
-      else :
+      else:
         op = str(cur.children[1])
       res = 0
       if op == '+':
@@ -208,9 +213,9 @@ class Interpreter:
     elif self.comp_exp(cur.children, 'expression RELOP expression'):
       op = ''
       # TODO: 更改lex.py 从而可以确保类型是Node, 从而可以去除下面这行
-      if isinstance(cur.children[1],Node):
+      if isinstance(cur.children[1], Node):
         op = str(cur.children[1].value)
-      else :
+      else:
         op = str(cur.children[1])
       left = self.s_expression(cur.children[0])
       right = self.s_expression(cur.children[2])
@@ -242,9 +247,9 @@ class Interpreter:
       rval = int(right.value)
       op = ''
       # TODO: 更改lex.py 从而可以确保类型是Node, 从而可以去除下面这行
-      if isinstance(cur.children[1],Node):
+      if isinstance(cur.children[1], Node):
         op = str(cur.children[1].value)
-      else :
+      else:
         op = str(cur.children[1])
 
       res = 0
@@ -323,21 +328,24 @@ class Interpreter:
 
   def s_json(self, cur: Node) -> StmtVal:
     data = dict()
-    self.s_json_list(cur.children[0],data)
-    return StmtVal(Type(TypeKind.JSON),data)
-  def s_json_list(self,cur:Node,data:Dict):
-    self.s_json_pair(cur.children[0],data)
+    self.s_json_list(cur.children[0], data)
+    return StmtVal(Type(TypeKind.JSON), data)
+
+  def s_json_list(self, cur: Node, data: Dict):
+    self.s_json_pair(cur.children[0], data)
     if len(cur.children) > 1:
-      self.s_json_list(cur.children[1],data)
-  def s_json_pair(self,cur:Node,data:Dict):
-    k:str = str(cur.children[0].value)
+      self.s_json_list(cur.children[1], data)
+
+  def s_json_pair(self, cur: Node, data: Dict):
+    k: str = str(cur.children[0].value)
     val = self.s_expression(cur.children[1])
     data[k] = val.value
+
   def s_args(self, cur: Node) -> List[StmtVal]:
     res = list()
-    res.append(self.s_expression(cur.children[0]))
     if len(cur.children) > 1:
       res += self.s_args(cur.children[1])
+    res.append(self.s_expression(cur.children[0]))
     return res
 
   def get_entry_point(self, id: str):
@@ -349,7 +357,10 @@ class Interpreter:
     cur = self.get_entry_point(id)
     self.running_symbol_table.openScope()
     self.state = RunState.RUNNING
-    self.s_statement_list(cur)
+    try:
+      self.s_statement_list(cur)
+    except Exception as e:
+      print(f"Error: {e} when running event {id}")
     self.state = RunState.WAIT
     self.running_symbol_table.closeScope()
 
@@ -413,7 +424,7 @@ class Interpreter:
       for arg in args:
         output += str(arg.value)
       print(output)
-      return StmtVal(Type(TypeKind.VOID),None)
+      return StmtVal(Type(TypeKind.VOID), None)
     elif func_name == 'get':
       txt = ""
       if len(args) == 1:
@@ -421,31 +432,35 @@ class Interpreter:
       else:
         raise RuntimeError("get func just need no more than 1 param")
       query = input(txt)
-      return StmtVal(Type(TypeKind.UNKNOWN),query)
+      return StmtVal(Type(TypeKind.UNKNOWN), query)
     elif func_name == 'hget':
       if len(args) != 1:
         raise RuntimeError("hget need 1 param")
       try:
         res = request.urlopen(args[0].value)
-        data = res.read().decode('utf - 8')
+        data = res.read()
+        data = data.decode('utf-8')
+        # convert to dict(json)
+        data = json.loads(data)
         return StmtVal(Type(TypeKind.JSON), data)
       except Exception as e:
         print(f"HTTP GET ERROR {e}")
-        return StmtVal(Type(TypeKind.ERROR),None)
+        return StmtVal(Type(TypeKind.ERROR), None)
     elif func_name == 'hpost':
-      if len(func_name) != 2:
+      if len(args) != 2:
         raise RuntimeError("hpost func need 2 params")
-      url:str = args[0].value
+      url: str = args[0].value
       data = args[1].value
-      req = request.Request(url,data)
+      if not isinstance(data, Dict):
+        raise RuntimeError("hpost data must be json")
       try:
-        res = request.urlopen(req)
-        data = res.read().decode('utf - 8')
+        res = requests.post(url, json=data)
+        data = res.json()
         return StmtVal(Type(TypeKind.JSON), data)
       except Exception as e:
         print(f"HTTP POST ERROR {e}")
-        return StmtVal(Type(TypeKind.ERROR),None)
-    elif func_name in ["exit","quit"]:
+        return StmtVal(Type(TypeKind.ERROR), None)
+    elif func_name in ["exit", "quit"]:
       self.end()
       raise RuntimeError("Unreached code")
     raise RuntimeError("Unreached code")
@@ -467,6 +482,7 @@ class Interpreter:
     def replacer(match):
       var_name = match.group(1)
       return str(self.running_symbol_table.get_symbol(var_name).record.value)
+
     pattern = re.compile(r'\$\{([a-zA-Z_][a-zA-Z_0-9]*)\}')
     res = pattern.sub(replacer, res)
     return res

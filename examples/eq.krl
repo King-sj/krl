@@ -11,7 +11,7 @@ event "end"{
 }
 event "购买商品" {
 	string itent = get("你想购买什么商品？");
-	print("你想购买{itent},是吗");
+	print("你想购买${itent},是吗");
 }
 event "查询余额" {
 	float res = hget("...");
@@ -31,9 +31,9 @@ fn login(){
 	 "acc" : acc,
 	 "psw" : psw
  };
- usl = "....";
+ string url = "https://bupt.online";
  json res = hpost(url, data);
- print(res.some);
+ print("${res}");
 }
 event "bye" {
   exit();

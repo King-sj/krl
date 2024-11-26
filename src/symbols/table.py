@@ -73,5 +73,5 @@ class StackListSymbolTable:
   def get_symbol(self, name:str):
     idx = self.find(name)
     if idx == -1:
-      raise SymbolNotFoundError(f'Not Found Symbol f{name}')
+      raise SymbolNotFoundError(f'Not Found Symbol {name}')
     return self.symbolTable[idx]
