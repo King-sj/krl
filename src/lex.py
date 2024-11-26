@@ -30,7 +30,12 @@ def t_ID(t):
   t.value.set_pos((t.lexer.lineno, t.lexer.lexpos))
   return t
 
-
+def t_FLOAT(t):
+  r'\d+\.\d+'
+  t.value = float(t.value)
+  t.value = Node(NodeType.FLOAT,'FLOAT',t.value)
+  t.value.set_pos((t.lexer.lineno, t.lexer.lexpos))
+  return t
 # A regular expression rule with some action code
 def t_INT(t):
   r'\d+'
@@ -38,12 +43,7 @@ def t_INT(t):
   t.value = Node(NodeType.INT,'INT',t.value)
   t.value.set_pos((t.lexer.lineno, t.lexer.lexpos))
   return t
-def t_FLOAT(t):
-  r'\d+\.\d+'
-  t.value = float(t.value)
-  t.value = Node(NodeType.FLOAT,'FLOAT',t.value)
-  t.value.set_pos((t.lexer.lineno, t.lexer.lexpos))
-  return t
+
 def t_STRING(t):
   r'".*"'
   t.value = t.value[1:-1]

@@ -254,16 +254,20 @@ class Interpreter:
         res = lval or rval
       return StmtVal(Type(TypeKind.INT), int(res))
     elif self.comp_exp(cur.children, 'expression = expression'):
+      # most used to json
       id = self.is_left_val(cur.children[0])
-      if id is None:
+      if len(id) == 0:
         raise RuntimeError(f"[{cur.lineno}]type mismatch")
-      id = str(id)
       val1 = self.s_expression(cur.children[0])
       val2 = self.s_expression(cur.children[2])
-      if val1.type.kind != val2.type.kind:
+      if val1.type.kind != TypeKind.ANY and val1.type.kind != val2.type.kind:
         raise RuntimeError(f"[{cur.lineno}]type mismatch")
-      syb = self.running_symbol_table.get_symbol(id)
-      syb.record.value = val2.value
+      syb = self.running_symbol_table.get_symbol(id[0])
+      # set syb.record.value.id[1].id[2]...id[-1] = val2.value
+      value = syb.record.value
+      for i in range(1, len(id) - 1):
+        value = value.get(id[i])
+      value[id[-1]] = val2.value
       return val2
     elif self.comp_exp(cur.children, '( expression )'):
       return self.s_expression(cur.children[1])
@@ -288,10 +292,14 @@ class Interpreter:
       if len(cur.children) > 3:
         args = self.s_args(cur.children[2])
       return self.exec_func(id, args)
-    elif self.comp_exp(cur.children, 'expression DOT ID'):
-      # TODO: implement it (now only for json)
-      raise RuntimeError("暂不支持")
-      pass
+    elif self.comp_exp(cur.children, 'expression . ID'):
+      # now only for json
+      data = self.s_expression(cur.children[0])
+      if data.type.kind != TypeKind.JSON:
+        raise RuntimeError("only json could be accessed by .")
+      id = str(cur.children[2].value)
+      value = data.value.get(id)
+      return StmtVal(Type(TypeKind.ANY), value)
     elif self.comp_exp(cur.children, 'ID'):
       syb = self.running_symbol_table.get_symbol(str(cur.children[0].value))
       return StmtVal(syb.record.type, syb.record.value)
@@ -306,8 +314,9 @@ class Interpreter:
     elif self.comp_exp(cur.children, 'STRING'):
       if cur.children[0].value is None:
         raise RuntimeError(f"[{cur.lineno}]string value is None")
-      # TODO: 支持 "xx{yy}xx"
-      return StmtVal(Type(TypeKind.STRING), str(cur.children[0].value))
+      res = str(cur.children[0].value)
+      res = self.format_string(res)
+      return StmtVal(Type(TypeKind.STRING), res)
     elif self.comp_exp(cur.children, 'json'):
       return self.s_json(cur.children[0])
     raise RuntimeError("Unreached code")
@@ -321,7 +330,7 @@ class Interpreter:
     if len(cur.children) > 1:
       self.s_json_list(cur.children[1],data)
   def s_json_pair(self,cur:Node,data:Dict):
-    k:str = str(cur.children[0])
+    k:str = str(cur.children[0].value)
     val = self.s_expression(cur.children[1])
     data[k] = val.value
   def s_args(self, cur: Node) -> List[StmtVal]:
@@ -344,18 +353,30 @@ class Interpreter:
     self.state = RunState.WAIT
     self.running_symbol_table.closeScope()
 
-  def is_left_val(self, cur: Node) -> str | None:
+  def is_left_val(self, cur: Node) -> List[str]:
     '''
     return id
     '''
+    res = []
+    if cur.name == 'ID':
+      res.append(str(cur.value))
+      return res
     if cur.children[0].value == 'ID':
-      return ""
+      res.append(str(cur.children[0].value))
+      return res
     if cur.type == NodeType.NOT_TOKEN:
       if len(cur.children) == 1:
         return self.is_left_val(cur.children[0])
       # if cur.children[0].value == 'expression':
       # TODO: 支持更多左值类型
-    return None
+      elif len(cur.children) == 3:
+        if cur.children[1] == '.':
+          l = self.is_left_val(cur.children[0])
+          r = self.is_left_val(cur.children[2])
+          if len(r) != 1:
+            raise RuntimeError("Unknow left value")
+          return l + r
+    return res
 
   def exec_func(self, func_name: str, args: List[StmtVal]) -> StmtVal:
     if self.is_builtin_func(func_name):
@@ -429,3 +450,23 @@ class Interpreter:
       raise RuntimeError("Unreached code")
     raise RuntimeError("Unreached code")
 
+  def format_string(self, val: str) -> str:
+    import re
+    res = val
+    # 处理转义字符
+    res = res.replace(r'\n', '\n')
+    res = res.replace(r'\t', '\t')
+    res = res.replace(r'\r', '\r')
+    res = res.replace(r'\b', '\b')
+    res = res.replace(r'\f', '\f')
+    res = res.replace(r'\\', '\\')
+    res = res.replace(r'\"', '\"')
+    res = res.replace(r'\'', '\'')
+
+    # 将 ${id} 替换为 id 的值
+    def replacer(match):
+      var_name = match.group(1)
+      return str(self.running_symbol_table.get_symbol(var_name).record.value)
+    pattern = re.compile(r'\$\{([a-zA-Z_][a-zA-Z_0-9]*)\}')
+    res = pattern.sub(replacer, res)
+    return res

@@ -11,7 +11,7 @@
       "program": "${file}",
       "console": "integratedTerminal",
       "args": [
-        "C:\\Users\\21756\\Desktop\\krl\\examples\\fibonacci.krl"
+        "C:\\Users\\21756\\Desktop\\krl\\examples\\test_data_type.krl"
       ]
     }
   ]

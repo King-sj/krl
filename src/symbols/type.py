@@ -13,6 +13,7 @@ class TypeKind(Enum):
   FUNCTION = 5
   EVENT = 6
   UNKNOWN = 7
+  ANY = 8
 
 
 @dataclass

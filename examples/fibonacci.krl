@@ -3,9 +3,7 @@ event "start" {
   print("你好！欢迎使用我们的斐波那契数列计算机器人。");
   int n = get("请输入你想计算的斐波那契数列的项数：");
   int result = fbc(n);
-  #print("第 " + n + " 项的斐波那契数列结果是：" + result);
-  print("结果是:");
-  print(result);
+  print("第 ${n} 项的斐波那契数列结果是：${result}");
   ask_again();
 }
 
@@ -22,9 +20,7 @@ fn ask_again() {
   if (choice == "是") {
     int n = get("请输入你想计算的斐波那契数列的项数：");
     int result = fbc(n);
-    # print("第 " + n + " 项的斐波那契数列结果是：" + result);
-    print("结果是:");
-    print(result);
+    print("第 ${n} 项的斐波那契数列结果是：${result}");
     ask_again();
   } else if(choice == "否") {
     exit();
