@@ -1,9 +1,3 @@
-# ------------------------------------------------------------
-# calclex.py
-#
-# tokenizer for a simple expression evaluator for
-# numbers and +,-,*,/
-# ------------------------------------------------------------
 import ply.lex as lex
 from config.lex_config import *
 from node import Node,NodeType

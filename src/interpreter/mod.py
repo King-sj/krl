@@ -57,9 +57,14 @@ class Interpreter:
 
   def start(self):
     self.run_event('start')
-
+  def generate_text(self, text: str) -> str:
+    '''
+    通过NLP生成用户请求文本
+    '''
+    return text
   def wait(self):
     query = input()
+    query = self.generate_text(query)
     try:
       self.run_event(query)
     except Exception as e:
