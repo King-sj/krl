@@ -17,6 +17,7 @@ event "登陆" {
     "value":name
   };
   hpost(post_url,post_data);
+  print("登陆成功");
 }
 event "查询登陆状态" {
   string get_url = "http://127.0.0.1:5000/data/name";

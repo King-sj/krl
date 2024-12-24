@@ -32,6 +32,8 @@ class Interpreter:
     # ast_root.print_ast()
     # 存储所有 event, function 的必要信息（重入点
     self.global_symbols_table = StackListSymbolTable()
+    # 过去运行时所用的符号表列表
+    self.past_symbol_table:List[StackListSymbolTable] = []
     # 运行时所用的符号表
     self.running_symbol_table = StackListSymbolTable()
 
@@ -301,7 +303,13 @@ class Interpreter:
       args = []
       if len(cur.children) > 3:
         args = self.s_args(cur.children[2])
-      return self.exec_func(id, args)
+
+      self.past_symbol_table.append(self.running_symbol_table)
+      self.running_symbol_table = StackListSymbolTable()
+      res = self.exec_func(id, args)
+      self.running_symbol_table = self.past_symbol_table.pop()
+
+      return res
     elif self.comp_exp(cur.children, 'expression . ID'):
       # now only for json
       data = self.s_expression(cur.children[0])
