@@ -9,10 +9,11 @@
       "type": "debugpy",
       "request": "launch",
       // "program": "${file}",
-      "program": "C:\\Users\\21756\\Desktop\\krl\\src\\main.py",
+      "program": "C:\\Users\\21756\\Desktop\\krl\\src\\server.py",
       "console": "integratedTerminal",
       "args": [
-        "C:\\Users\\21756\\Desktop\\krl\\examples\\simple.krl"
+        "--file",
+        "C:\\Users\\21756\\Desktop\\krl\\examples\\fibonacci.krl"
       ]
     }
   ]

@@ -10,7 +10,7 @@ import requests
 from urllib import request
 from typing import Dict
 import json
-
+import time
 
 class RunState(Enum):
   START = 0
@@ -40,7 +40,54 @@ class Interpreter:
     init_global_symbols(self.global_symbols_table, ast_root)
     self.state = RunState.START
     self.is_end = False
+    self.input_buffer = ""
+    self.output_buffer = ""
+  def put_input(self, input: str, end='\n'):
+    '''
+    将输入放入输入缓冲区
+    '''
+    self.input_buffer += input+end
+  def get_output(self) -> str:
+    '''
+    获取输出缓冲区, 并清空输出缓冲区
+    '''
 
+    tmp = self.output_buffer
+    self.clear_output()
+    return tmp
+  def clear_output(self):
+    '''
+    清空输出缓冲区
+    '''
+    self.output_buffer = ""
+  def input(self, prompt: str|None=None) -> str:
+    '''
+    重写input函数, 用于模拟输入
+    '''
+    if prompt is not None:
+      self.output_buffer += prompt
+    # 从输入缓冲区中获取第一行作为输入
+    while '\n' not in self.input_buffer:
+      time.sleep(0.1)
+    index = self.input_buffer.index('\n')
+    res = self.input_buffer[:index]
+    self.input_buffer = self.input_buffer[index+1:]
+    return res
+  def print(self, output: str):
+    '''
+    重写print函数, 用于模拟输出
+    '''
+    self.output_buffer += output
+  def is_output_ready(self) -> bool:
+    '''
+    判断输出缓冲区是否有内容
+    '''
+    return len(self.output_buffer) > 0
+  def stop(self):
+    '''
+    停止脚本执行
+    '''
+    self.is_end = True
   def run(self):
     '''
     脚本执行的入口
@@ -65,7 +112,7 @@ class Interpreter:
     '''
     return text
   def wait(self):
-    query = input()
+    query = self.input()
     query = self.generate_text(query)
     try:
       self.run_event(query)
@@ -373,7 +420,7 @@ class Interpreter:
     try:
       self.s_statement_list(cur)
     except Exception as e:
-      print(f"Error: {e} when running event {id}")
+      self.print(f"Error: {e} when running event {id}")
     self.state = RunState.WAIT
     self.running_symbol_table.closeScope()
 
@@ -436,7 +483,7 @@ class Interpreter:
       output = ""
       for arg in args:
         output += str(arg.value)
-      print(output)
+      self.print(output)
       return StmtVal(Type(TypeKind.VOID), None)
     elif func_name == 'get':
       txt = ""
@@ -444,7 +491,7 @@ class Interpreter:
         txt = args[0].value
       else:
         raise RuntimeError("get func just need no more than 1 param")
-      query = input(txt)
+      query = self.input(txt)
       return StmtVal(Type(TypeKind.UNKNOWN), query)
     elif func_name == 'hget':
       if len(args) != 1:
@@ -457,7 +504,7 @@ class Interpreter:
         data = json.loads(data)
         return StmtVal(Type(TypeKind.JSON), data)
       except Exception as e:
-        print(f"HTTP GET ERROR {e}")
+        self.print(f"HTTP GET ERROR {e}")
         return StmtVal(Type(TypeKind.ERROR), None)
     elif func_name == 'hpost':
       if len(args) != 2:
@@ -471,7 +518,7 @@ class Interpreter:
         data = res.json()
         return StmtVal(Type(TypeKind.JSON), data)
       except Exception as e:
-        print(f"HTTP POST ERROR {e}")
+        self.print(f"HTTP POST ERROR {e}")
         return StmtVal(Type(TypeKind.ERROR), None)
     elif func_name in ["exit", "quit"]:
       self.end()
