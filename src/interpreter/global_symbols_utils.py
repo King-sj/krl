@@ -41,6 +41,16 @@ def s_event(cur: Node, st: StackListSymbolTable):
 
 
 def s_function(cur: Node, st: StackListSymbolTable):
+  """
+  Processes a function node in the abstract syntax tree (AST) and inserts the corresponding symbol into the symbol table.
+
+  Args:
+    cur (Node): The current node in the AST representing a function.
+    st (StackListSymbolTable): The symbol table where the function symbol will be inserted.
+
+  Returns:
+    None
+  """
   name = str(cur.children[0].value)
   value = GlobalInfo(cur.children[2])
   params = []

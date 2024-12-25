@@ -26,6 +26,52 @@ class StmtVal:
 
 
 class Interpreter:
+  """
+  The Interpreter class is responsible for executing a script represented by an abstract syntax tree (AST).
+  It maintains symbol tables for global and runtime scopes, handles input/output buffering, and provides
+  methods for executing various types of statements and expressions.
+  Attributes:
+    root (Node): The root of the abstract syntax tree (AST).
+    global_symbols_table (StackListSymbolTable): The global symbol table storing necessary information for events and functions.
+    past_symbol_table (List[StackListSymbolTable]): A list of past runtime symbol tables.
+    running_symbol_table (StackListSymbolTable): The current runtime symbol table.
+    state (RunState): The current state of the interpreter.
+    is_end (bool): A flag indicating whether the script execution has ended.
+    input_buffer (str): A buffer for storing input strings.
+    output_buffer (str): A buffer for storing output strings.
+  Methods:
+    put_input(input: str, end='\n'): Adds input to the input buffer.
+    get_output() -> str: Retrieves and clears the output buffer.
+    clear_output(): Clears the output buffer.
+    input(prompt: str|None=None) -> str: Simulates the input function.
+    print(output: str): Simulates the print function.
+    is_output_ready() -> bool: Checks if the output buffer has content.
+    stop(): Stops the script execution.
+    run(): The entry point for script execution.
+    start(): Starts the execution of the 'start' event.
+    generate_text(text: str) -> str: Generates text using NLP (placeholder).
+    wait(): Waits for input and processes it.
+    end(): Ends the script execution.
+    other(query): Handles unknown queries (placeholder).
+    s_statement_list(cur: Node) -> StmtVal: Processes a list of statements.
+    s_statement(cur: Node) -> StmtVal: Processes a single statement.
+    s_if_statement(cur: Node) -> StmtVal: Processes an if statement.
+    s_while_statement(cur: Node) -> StmtVal: Processes a while statement.
+    s_comp_statement(cur: Node) -> StmtVal: Processes a compound statement.
+    comp_exp(children: List[Node], grammar: str) -> bool: Compares the structure of expressions.
+    s_expression(cur: Node) -> StmtVal: Processes an expression.
+    s_json(cur: Node) -> StmtVal: Processes a JSON object.
+    s_json_list(cur: Node, data: Dict): Processes a list of JSON pairs.
+    s_json_pair(cur: Node, data: Dict): Processes a JSON key-value pair.
+    s_args(cur: Node) -> List[StmtVal]: Processes function arguments.
+    get_entry_point(id: str): Retrieves the entry point for a given event or function.
+    run_event(id): Runs an event by its identifier.
+    is_left_val(cur: Node) -> List[str]: Determines if a node is a left value and returns its identifier.
+    exec_func(func_name: str, args: List[StmtVal]) -> StmtVal: Executes a function.
+    is_builtin_func(func_name: str) -> bool: Checks if a function is a built-in function.
+    run_builtin_func(func_name: str, args: List[StmtVal]) -> StmtVal: Executes a built-in function.
+    format_string(val: str) -> str: Formats a string, handling escape characters and variable substitution.
+  """
 
   def __init__(self, ast_root: Node) -> None:
     self.root = ast_root

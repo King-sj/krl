@@ -23,7 +23,21 @@ class Function:
 
 
 class Type:
-
+  """
+  A class to represent a type in the system.
+  Attributes:
+  ----------
+  kind : TypeKind
+    The kind of the type (e.g., INT, FLOAT, STRING, JSON).
+  function : Union[None, 'Function']
+    An optional function associated with the type.
+  Methods:
+  -------
+  str2type(typename: str) -> 'Type':
+    Converts a string representation of a type to a Type object.
+  trans_to(value: Any, type: 'Type') -> Any:
+    Transforms a value to the specified type.
+  """
   def __init__(self,
                kind: TypeKind,
                function: Union[None, 'Function'] = None) -> None:

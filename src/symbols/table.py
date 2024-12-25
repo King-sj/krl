@@ -6,7 +6,30 @@ from .record import Record
 from .type import Type, TypeKind
 import warnings
 class StackListSymbolTable:
-
+  """
+  A symbol table that supports nested scopes using a stack-based approach.
+  Attributes:
+    blockIndexTable (List[int]): A list to keep track of the starting index of each scope.
+    symbolTable (List[Symbol]): A list to store symbols.
+    top (int): The current top index of the symbol table.
+    hashTable (Dict[int, int]): A dictionary to map symbol names to their indices in the symbol table.
+    blockIndex (int): The current scope level.
+  Methods:
+    openScope():
+      Opens a new scope by incrementing the block index and storing the current top index.
+    closeScope():
+      Closes the current scope by popping symbols until the scope's starting index is reached.
+    find(name: str) -> int:
+      Finds the index of a symbol in the nearest scope by its name.
+    insert(symbol: Symbol) -> int:
+      Inserts a new symbol into the symbol table and returns its index.
+    get(idx: int) -> Symbol:
+      Retrieves a symbol from the symbol table by its index.
+    pop() -> int:
+      Removes the top symbol from the symbol table and returns the new top index.
+    get_symbol(name: str) -> Symbol:
+      Retrieves a symbol from the symbol table by its name.
+  """
   def __init__(self):
     self.blockIndexTable: List[int] = []
     self.symbolTable: List[Symbol] = []

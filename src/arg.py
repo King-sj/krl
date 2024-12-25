@@ -1,4 +1,12 @@
 import argparse
+"""
+This script sets up an argument parser for the KRL SERVER.
+Arguments:
+  --file (str): Required. Path to the KRL script file.
+  --port (int): Optional. Port for the KRL server. Default is 5001.
+  --host (str): Optional. Host for the KRL server. Default is "localhost".
+  --debug (bool): Optional. Enable or disable debug mode for the KRL server. Default is True.
+"""
 
 arg_parser = argparse.ArgumentParser(description="KRL SERVER")
 
